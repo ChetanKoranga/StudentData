@@ -54,9 +54,12 @@ class Toplevel1:
         sql = "select * from students"
         self.mycursor.execute(sql)
         result = self.mycursor.fetchall()
+        i=0
         for info in result:
-            self.Listbox1.insert(END,info)
-
+                self.Listbox1.insert(i,info)
+                i+=1
+    def delete(self):
+        sql = "delete * from students where roll_no=",rollNo
     def __init__(self, top=None):
         try:
             self.studentDB = mysql.connect(host="localhost",user="chetan",passwd="chetan123",database="pythonDB")
@@ -303,7 +306,7 @@ class Toplevel1:
         self.Button1_9.configure(highlightbackground="#d9d9d9")
         self.Button1_9.configure(highlightcolor="black")
         self.Button1_9.configure(pady="0")
-        self.Button1_9.configure(text='''Delete''')
+        self.Button1_9.configure(command=self.delete,text='''Delete''')
 
         self.Listbox1 = tk.Listbox(top)
         self.Listbox1.place(relx=0.109, rely=0.518, relheight=0.445
