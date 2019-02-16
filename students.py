@@ -53,20 +53,60 @@ class Toplevel1:
     def show(self):
         sql = "select * from students"
         self.mycursor.execute(sql)
+        self.Listbox1.delete(0,self.Listbox1.size())
         result = self.mycursor.fetchall()
         i=0
         for info in result:
                 self.Listbox1.insert(i,info)
                 i+=1
+
+    def addStudent(self):
+        name = self.Text1.get("1.0","end")
+        roll_no = self.Text1_2.get("1.0","end")
+        marks = self.Text2.get("1.0","end")
+        age = self.Spinbox1.get()
+        sex = "Male"
+        try:
+            sql = "insert into students value('" +name+ "',"+roll_no+","+marks+",'"+sex+"',"+age+");"
+            self.mycursor.execute(sql)
+            self.studentDB.commit()
+            messagebox.showinfo("Added","Student added successfully")
+        except Exception:
+            messagebox.showerror("Error","Could not add the Student's info")
+
+    def update_info(self):
+        name = self.Text1.get("1.0", "end")
+        roll_no = self.Text1_2.get("1.0", "end")
+        marks = self.Text2.get("1.0", "end")
+        age = self.Spinbox1.get()
+        sex = "Male"
+        try:
+            sql = "update students set name='"+name+"',marks="+marks+",age="+age+",sex='"+sex+"' where roll_no="+roll_no
+            self.mycursor.execute(sql)
+            self.studentDB.commit()
+            messagebox.showinfo("Updated","Info Successfully Updated.")
+        except Exception:
+            messagebox.showerror("Error","Could not update Student's info")
+
     def delete(self):
-        sql = "delete * from students where roll_no=",rollNo
+
+        sql = "delete from students where roll_no= {}".format(self.Text1_2.get("1.0","end"))
+        messagebox.showinfo("Delete Confirmation","The selected student's data is deleted")
+        self.mycursor.execute(sql)
+
     def __init__(self, top=None):
         try:
             self.studentDB = mysql.connect(host="localhost",user="chetan",passwd="chetan123",database="pythonDB")
             self.mycursor = self.studentDB.cursor()
+
         except Exception:
             messagebox.showerror("ERROR","Can't connect to Student database.")
 
+        try:
+            self.create_table = "create table students(name char(40),roll_no int primary key,marks int,sex char(5),age int);"
+            self.mycursor.execute(self.create_table)
+        except Exception:
+            pass
 
 
 
@@ -209,7 +249,7 @@ class Toplevel1:
         self.Spinbox1.configure(selectbackground="#c4c4c4")
         self.Spinbox1.configure(selectforeground="black")
         self.Spinbox1.configure(textvariable=students_support.spinbox)
-        self.value_list = [4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,]
+        self.value_list = []
         self.Spinbox1.configure(values=self.value_list)
 
         self.Frame2 = tk.Frame(self.Frame1)
@@ -282,7 +322,7 @@ class Toplevel1:
         self.Button1_7.configure(highlightbackground="#d9d9d9")
         self.Button1_7.configure(highlightcolor="black")
         self.Button1_7.configure(pady="0")
-        self.Button1_7.configure(text='''Add''')
+        self.Button1_7.configure(command=self.addStudent,text='''Add''')
 
         self.Button1_8 = tk.Button(self.Frame3)
         self.Button1_8.place(relx=0.515, rely=0.222, height=24, width=87)
@@ -294,7 +334,7 @@ class Toplevel1:
         self.Button1_8.configure(highlightbackground="#d9d9d9")
         self.Button1_8.configure(highlightcolor="black")
         self.Button1_8.configure(pady="0")
-        self.Button1_8.configure(text='''Update''')
+        self.Button1_8.configure(command=self.update_info, text='''Update''')
 
         self.Button1_9 = tk.Button(self.Frame3)
         self.Button1_9.place(relx=0.733, rely=0.222, height=24, width=87)
