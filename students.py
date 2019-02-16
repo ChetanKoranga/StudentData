@@ -7,7 +7,8 @@
 
 import sys
 import mysql.connector as mysql
-from tkinter import messagebox
+from tkinter import messagebox, IntVar
+
 try:
     import Tkinter as tk
 except ImportError:
@@ -50,6 +51,9 @@ def destroy_Toplevel1():
     w = None
 
 class Toplevel1:
+
+#function for show button
+
     def show(self):
         sql = "select * from students"
         self.mycursor.execute(sql)
@@ -60,26 +64,40 @@ class Toplevel1:
                 self.Listbox1.insert(i,info)
                 i+=1
 
+#functions for radio buttons for male and female
+
+    def male_selected(self):
+        self.sex = "Male"
+    def female_selected(self):
+        self.sex = "Female"
+
+#function for add button
+
     def addStudent(self):
         name = self.Text1.get("1.0","end")
         roll_no = self.Text1_2.get("1.0","end")
         marks = self.Text2.get("1.0","end")
+        sex = self.sex
+
         age = self.Spinbox1.get()
-        sex = "Male"
+
         try:
-            sql = "insert into students value('" +name+ "',"+roll_no+","+marks+",'"+sex+"',"+age+");"
+            sql = "insert into students value('" +name+ "',"+roll_no+","+marks+",'"+sex+"',"+age+")"
+
             self.mycursor.execute(sql)
             self.studentDB.commit()
             messagebox.showinfo("Added","Student added successfully")
         except Exception:
             messagebox.showerror("Error","Could not add the Student's info")
 
+#function for update button
+
     def update_info(self):
         name = self.Text1.get("1.0", "end")
         roll_no = self.Text1_2.get("1.0", "end")
         marks = self.Text2.get("1.0", "end")
         age = self.Spinbox1.get()
-        sex = "Male"
+        sex = self.sex
         try:
             sql = "update students set name='"+name+"',marks="+marks+",age="+age+",sex='"+sex+"' where roll_no="+roll_no
             self.mycursor.execute(sql)
@@ -88,13 +106,17 @@ class Toplevel1:
         except Exception:
             messagebox.showerror("Error","Could not update Student's info")
 
+#function for delete button
+
     def delete(self):
 
         sql = "delete from students where roll_no= {}".format(self.Text1_2.get("1.0","end"))
         messagebox.showinfo("Delete Confirmation","The selected student's data is deleted")
         self.mycursor.execute(sql)
 
+
     def __init__(self, top=None):
+    #get access to the datebase
         try:
             self.studentDB = mysql.connect(host="localhost",user="chetan",passwd="chetan123",database="pythonDB")
             self.mycursor = self.studentDB.cursor()
@@ -103,7 +125,7 @@ class Toplevel1:
             messagebox.showerror("ERROR","Can't connect to Student database.")
 
         try:
-            self.create_table = "create table students(name char(40),roll_no int primary key,marks int,sex char(5),age int);"
+            self.create_table = "create table students(name char(40),roll_no int primary key,marks int,sex char(6),age int);"
             self.mycursor.execute(self.create_table)
         except Exception:
             pass
@@ -123,6 +145,8 @@ class Toplevel1:
         top.configure(background="#d9d9d9")
         top.configure(highlightbackground="#d9d9d9")
         top.configure(highlightcolor="black")
+
+        self.var = IntVar()
 
         self.menubar = tk.Menu(top,font="TkMenuFont",bg=_bgcolor,fg=_fgcolor)
         top.configure(menu = self.menubar)
@@ -275,6 +299,7 @@ class Toplevel1:
         self.Radiobutton4.configure(highlightcolor="black")
         self.Radiobutton4.configure(justify='left')
         self.Radiobutton4.configure(text='''Female''')
+        self.Radiobutton4.configure(variable=self.var,value=1,command=self.female_selected)
 
         self.Radiobutton3 = tk.Radiobutton(self.Frame2)
         self.Radiobutton3.place(relx=0.069, rely=0.222, relheight=0.556
@@ -288,6 +313,7 @@ class Toplevel1:
         self.Radiobutton3.configure(highlightcolor="black")
         self.Radiobutton3.configure(justify='left')
         self.Radiobutton3.configure(text='''Male''')
+        self.Radiobutton3.configure(variable=self.var,value=2, command=self.male_selected)
 
         self.Frame3 = tk.Frame(top)
         self.Frame3.place(relx=0.109, rely=0.442, relheight=0.069
